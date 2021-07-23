@@ -4,10 +4,12 @@ import time
 import numpy as np
 import copy
 
+
 """ An object representation for an AI game player for the game Teeko2."""
 class Teeko2Player:
     board = [[' ' for j in range(5)] for i in range(5)]
     pieces = ['b', 'r']
+    
     
     """ Initializes a Teeko2Player object by randomly selecting red or black as its
         piece color."""
@@ -27,65 +29,83 @@ class Teeko2Player:
         drop_phase = True   
         count_b = 0
         count_r = 0
+        
         for i in range(len(state)):
             for j in range(len(state[i])):
                 if state[i][j] == 'b':
                     count_b += 1
+                
                 elif state[i][j] == 'r':
                     count_r += 1
+                
                 else:
                     continue
+        
+        
         if count_b == 4 and count_r == 4:
             drop_phase = False
         
         if drop_phase:
               # Generate all successive states
               successors = self.succ(state)
+              
               # Select move based on minimax algorithm
               for eachstate in successors:
                     stepval = self.min_val(float("-inf"), float("inf"), eachstate[0], 2)
                     max_value = -np.inf
+                    
                     if max_value < stepval:
                         max_value = stepval
                         next_state = eachstate
+              
               move = next_state[1]
                 
         
 
         if not drop_phase:
               successors = self.succ(state)
+              
               for eachstate in successors:
                 stepval = self.min_val(float("-inf"), float("inf"), eachstate[0], 0)
                 max_value = -np.inf
+                
                 if max_value < stepval:
                     max_value = stepval
                     next_state = eachstate
-              move = next_state[1]
+              
+                move = next_state[1]
+        
         return move
+    
     
     """Given the state of the board returns a list of list of possible moves. """
     def succ(self, state):
-        possible = []
-        
-        
+        possible = [] 
         drop_phase = True   
         count_b = 0
         count_r = 0
+        
         for i in range(len(state)):
             for j in range(len(state[i])):
                 if state[i][j] == 'b':
                     count_b += 1
+                
                 elif state[i][j] == 'r':
                     count_r += 1
+                
                 else:
                     continue
+        
+        
         if count_b == 4 and count_r == 4:
             drop_phase = False
             
+        
         if drop_phase == True:
             for i in range(len(state)):
                 for j in range(len(state[i])):
                     succ = copy.deepcopy(state)
+                    
                     if succ[i][j] == ' ':
                         succ[i][j] = self.my_piece
                         mov = [(i,j)]
@@ -93,10 +113,14 @@ class Teeko2Player:
                     
                     else:
                         continue
+        
+        
+        
         else:
             for i in range(len(state)):
                 for j in range(len(state[i])):
                     succ = copy.deepcopy(state)
+                    
                     if succ[i][j] == self.my_piece:
                         for x in range(i-1, i +1):
                             for y in range(j-1, j+1):
@@ -107,9 +131,11 @@ class Teeko2Player:
                                         succ[i][j] = ' '
                                         movement = [(x,y), (i,j)]
                                         possible.append([succ, movement])
+                                    
                                     else:
                                         continue
-        return possible
+        
+       return possible
                         
         
     """ Validates the opponent's next move against the internal board representation."""
@@ -119,14 +145,17 @@ class Teeko2Player:
         if len(move) > 1:
             source_row = move[1][0]
             source_col = move[1][1]
+            
             if source_row != None and self.board[source_row][source_col] != self.opp:
                 self.print_board()
                 print(move)
                 raise Exception("You don't have a piece there!")
+            
             if abs(source_row - move[0][0]) > 1 or abs(source_col - move[0][1]) > 1:
                 self.print_board()
                 print(move)
                 raise Exception('Illegal move: Can only move to an adjacent space')
+        
         if self.board[move[0][0]][move[0][1]] != ' ':
             raise Exception("Illegal move detected")
         # make move
@@ -136,6 +165,7 @@ class Teeko2Player:
     def place_piece(self, move, piece):
         if len(move) > 1:
             self.board[move[1][0]][move[1][1]] = ' '
+        
         self.board[move[0][0]][move[0][1]] = piece
 
     """ Formatted printing for the board """
@@ -154,25 +184,31 @@ class Teeko2Player:
     def heuristic_game_value(self, state):
         x = self.game_value(state) #'how close' player is to winning
         y = 0.0 #'how close' opponent is to winning.
+        
         if (x == 1 or x == -1):
             return x
         else:
             x = 0
+            
             for i in range(4):
                 for j in range(4):
                     if state[i][j] == ' ':
                         continue
+                    
                     else:
                         # Evaluates vertical connections
                         if state[i][j] == state[i+1][j]:
                             if i+2 <= 4 and state[i][j] == state[i+2][j]:
                                 if state[i][j] == self.my_piece:
                                     x = max(0.75, y)
+                                
                                 else:
                                     y = min(-0.75, y)
+                            
                             else:
                                 if state[i][j] == self.my_piece:
                                     x = max(0.5, x)
+                                
                                 else:
                                     y =  min(-0.5, y)
                             
@@ -182,11 +218,14 @@ class Teeko2Player:
                             if j+2 <= 4 and state[i][j] == state[i][j+2]:
                                 if state[i][j] == self.my_piece:
                                     x = max(0.75, x)
+                                
                                 else:
                                     y = min(-0.75, y)
+                            
                             else:
                                 if state[i][j] == self.my_piece:
                                     x =  max(0.5, x)
+                                
                                 else:
                                     y = min(-0.5, y) 
                 
@@ -195,11 +234,14 @@ class Teeko2Player:
                     if i+2 <= 4 and state[i][i] == state[i+2][i+2]:
                         if state[i][i] == self.my_piece:
                             x = max(0.75, x)
+                        
                         else:
                             y = min(-0.75, y)
+                    
                     else:
                         if state[i][i] == self.my_piece:
                             x = max(0.5, x)
+                        
                         else:
                             y = min(-0.5, y)
                             
@@ -208,11 +250,14 @@ class Teeko2Player:
                     if state[i][4-i] == state[i+2][2 - i]:
                         if state[i][i] == self.my_piece:
                             x = max(0.75, x)
+                        
                         else:
                             y = min(-0.75, y)
+                    
                     else:
                         if state[i][i] == self.my_piece:
                             x = max(0.75, x)
+                        
                         else:
                             y = min(-0.5, y)
                 
@@ -225,12 +270,16 @@ class Teeko2Player:
                             sqr = (state[i+2][j+2], state[i+2][j], state[i][j+2])
                             h = sqr.count(a)
                             k = sqr.count(b)
+                            
                             if (h == 1):
                                 x = max(0.5, x)
+                            
                             if (h == 2):
                                 x = max(0.75, y)
+                            
                             if (k == 1):
                                 y = min(-0.5, y)
+                            
                             if (k ==2):
                                 y = min(-0.75, y)
                 
@@ -239,14 +288,19 @@ class Teeko2Player:
     """ Max value that a player can achieve considering the opponent tries to minimize the  heuristic value."""
     def max_val(self, alpha,beta,state, depth):
         x = self.game_value(state)
+        
         if (x == 1 or x == -1):
             return x
+        
         if depth == 0:
             return self.heuristic_game_value(state)
+        
         else:
             successors = self.succ(state)
+            
             for s in successors:
                 alpha = max(alpha, self.min_val(alpha, beta, s[0], depth +1 ))
+                
                 # pruning uisng beta value
                 if alpha >= beta: 
                     return beta
@@ -255,15 +309,20 @@ class Teeko2Player:
     """ Min vlaue that a player can restrict the opponent to considering the opponent tries to maximize the nueristic value."""    
     def min_val(self, alpha,beta,state, depth):
         x = self.game_value(state)
+        
         if (x == 1 or x == -1):
             return x
+        
         if depth == 0:
             return self.heuristic_game_value(state)
+        
         else:
             successors = self.succ(state)
+            
             for s in successors:
                 alpha = min(alpha, self.max_val(alpha, beta, s[0], depth +1 ))
                 #pruning using alpha value
+                
                 if alpha <= beta:
                     return beta
             return alpha
@@ -284,12 +343,12 @@ class Teeko2Player:
                 if state[i][col] != ' ' and state[i][col] == state[i+1][col] == state[i+2][col] == state[i+3][col]:
                     return 1 if state[i][col]==self.my_piece else -1
 
-        # TODO: check \ diagonal wins
+        #check \ diagonal wins
         for i in range(2):
             for j in range(2):
                 if state[i][j] != ' ' and state[i][j] == state[i+1][j + 1] == state[i+2][j+2] == state[i+3][j+3]:
                     return 1 if state[i][i] == self.my_piece else -1
-        # TODO: check / diagonal wins
+        #check / diagonal wins
         if state[3][0] != ' ' and state[3][0] == state[2][1] == state[1][2] == state[0][3]:
                     return 1 if state[3][0] == self.my_piece else -1
         
@@ -302,7 +361,7 @@ class Teeko2Player:
         if state[1][4] != ' ' and state[1][4] == state[2][3] == state[3][2] == state[4][1]:
                     return 1 if state[1][4] == self.my_piece else -1
         
-        # TODO: check 3x3 square corners wins
+        #check 3x3 square corners wins
         for i in range(3):
             for j in range(3):
                 if state[i][j] != ' ' and state[i][j] == state[i+2][j] ==state[i][j+2] == state[i+2][j+2] and state[i+1][j+1] == ' ':
@@ -328,17 +387,22 @@ def main():
             move = ai.make_move(ai.board)
             ai.place_piece(move, ai.my_piece)
             print(ai.my_piece+" moved at "+chr(move[0][1]+ord("A"))+str(move[0][0]))
+        
         else:
             move_made = False
             ai.print_board()
             print(ai.opp+"'s turn")
+            
             while not move_made:
                 player_move = input("Move (e.g. B3): ")
+                
                 while player_move[0] not in "ABCDE" or player_move[1] not in "01234":
                     player_move = input("Move (e.g. B3): ")
+                
                 try:
                     ai.opponent_move([(int(player_move[1]), ord(player_move[0])-ord("A"))])
                     move_made = True
+                
                 except Exception as e:
                     print(e)
 
@@ -357,21 +421,27 @@ def main():
             ai.place_piece(move, ai.my_piece)
             print(ai.my_piece+" moved from "+chr(move[1][1]+ord("A"))+str(move[1][0]))
             print("  to "+chr(move[0][1]+ord("A"))+str(move[0][0]))
+        
         else:
             move_made = False
             ai.print_board()
             print(ai.opp+"'s turn")
+            
             while not move_made:
                 move_from = input("Move from (e.g. B3): ")
+                
                 while move_from[0] not in "ABCDE" or move_from[1] not in "01234":
                     move_from = input("Move from (e.g. B3): ")
                 move_to = input("Move to (e.g. B3): ")
+                
                 while move_to[0] not in "ABCDE" or move_to[1] not in "01234":
                     move_to = input("Move to (e.g. B3): ")
+                
                 try:
                     ai.opponent_move([(int(move_to[1]), ord(move_to[0])-ord("A")),
                                     (int(move_from[1]), ord(move_from[0])-ord("A"))])
                     move_made = True
+                
                 except Exception as e:
                     print(e)
 
