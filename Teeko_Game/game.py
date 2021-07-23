@@ -247,7 +247,8 @@ class Teeko2Player:
             successors = self.succ(state)
             for s in successors:
                 alpha = max(alpha, self.min_val(alpha, beta, s[0], depth +1 ))
-                if alpha >= beta:
+                # pruning uisng beta value
+                if alpha >= beta: 
                     return beta
             return alpha
         
@@ -262,6 +263,7 @@ class Teeko2Player:
             successors = self.succ(state)
             for s in successors:
                 alpha = min(alpha, self.max_val(alpha, beta, s[0], depth +1 ))
+                #pruning using alpha value
                 if alpha <= beta:
                     return beta
             return alpha
