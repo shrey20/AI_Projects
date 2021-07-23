@@ -113,18 +113,20 @@ def solve(state):
         
         parent_index = len(closed) -1
 
-        
+        #generate successive states
         poss = sorted(gen_succ(traverse[1]))
         
+        #traverse the successor states
         for eachstate in poss:
             h = heuristic(eachstate)
             visit = 0
             
+            #Check if the state is already visited.
             for a in closed:
                 if (a[1] == eachstate):
                     visit = 1
                     break
-            
+            #Push the state in pq if not visited.
             if visit == 0:
                 heapq.heappush(pq, (g+h+1, eachstate, (g+1,h,parent_index)))
         
@@ -132,6 +134,7 @@ def solve(state):
     path = []
     end = copy.deepcopy(traverse)
     
+    #Backtrack and print the path to the goal state.
     while True:
         path.append(end)
         x = end[2][2]
