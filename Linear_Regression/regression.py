@@ -3,18 +3,9 @@ from matplotlib import pyplot as plt
 import csv
 import random
 
-
+""" Takes  a string representing the path to the csv file and returns an n by m+1 array, where n is # data points and m is #features.
+The labels y are in the first column"""
 def get_dataset(filename):
-    """
-    TODO: implement this function.
-
-    INPUT: 
-        filename - a string representing the path to the csv file.
-
-    RETURNS:
-        An n by m+1 array, where n is # data points and m is # features.
-        The labels y should be in the first column.
-    """
     dataset = None
     dataset = []
     with open(filename) as csvfile:
@@ -27,18 +18,8 @@ def get_dataset(filename):
     return dataset
 
 
+""" Prints the mean and the variance for the specified columns in the given dataset."""
 def print_stats(dataset, col):
-    """
-    TODO: implement this function.
-
-    INPUT: 
-        dataset - the body fat n by m+1 array
-        col     - the index of feature to summarize on. 
-                  For example, 1 refers to density.
-
-    RETURNS:
-        None
-    """
     n = len(dataset)
     print(n)
     
@@ -58,19 +39,8 @@ def print_stats(dataset, col):
     pass
 
 
+"""Calculates and returns the mean squared error on the dataset given fixed betas."""
 def regression(dataset, cols, betas):
-    """
-    TODO: implement this function.
-
-    INPUT: 
-        dataset - the body fat n by m+1 array
-        cols    - a list of feature indices to learn.
-                  For example, [1,8] refers to density and abdomen.
-        betas   - a list of elements chosen from [beta0, beta1, ..., betam]
-
-    RETURNS:
-        mse of the regression model
-    """
     mse = None
     column = dataset[:, cols]
 
@@ -79,20 +49,8 @@ def regression(dataset, cols, betas):
     mse = np.sum(np.square(np.dot(column, betas[1:]) + betas[0] - dataset[:,0]))/n
     return mse
 
-
+""" Performs a single step of gradient descent on the MSE and returns the derivative values as an 1D array."""
 def gradient_descent(dataset, cols, betas):
-    """
-    TODO: implement this function.
-
-    INPUT: 
-        dataset - the body fat n by m+1 array
-        cols    - a list of feature indices to learn.
-                  For example, [1,8] refers to density and abdomen.
-        betas   - a list of elements chosen from [beta0, beta1, ..., betam]
-
-    RETURNS:
-        An 1D array of gradients
-    """
     grads = None
     column = dataset[:,cols]
     n = len(column)
@@ -106,21 +64,8 @@ def gradient_descent(dataset, cols, betas):
     return grads
 
 
+""" Performs T iterations of gradient descent starting at the given betas and prints the results; does not return anything."""
 def iterate_gradient(dataset, cols, betas, T, eta):
-    """
-    TODO: implement this function.
-
-    INPUT: 
-        dataset - the body fat n by m+1 array
-        cols    - a list of feature indices to learn.
-                  For example, [1,8] refers to density and abdomen.
-        betas   - a list of elements chosen from [beta0, beta1, ..., betam]
-        T       - # iterations to run
-        eta     - learning rate
-
-    RETURNS:
-        None
-    """
     n = len(betas)
     for i in range(T):
         grads = gradient_descent(dataset,cols,betas)
@@ -136,18 +81,8 @@ def iterate_gradient(dataset, cols, betas, T, eta):
     pass
 
 
+"""  Using the closed-form solution, calculates and returns the values of betas and the corresponding MSE as a tuple. """
 def compute_betas(dataset, cols):
-    """
-    TODO: implement this function.
-
-    INPUT: 
-        dataset - the body fat n by m+1 array
-        cols    - a list of feature indices to learn.
-                  For example, [1,8] refers to density and abdomen.
-
-    RETURNS:
-        A tuple containing corresponding mse and several learned betas
-    """
     betas = None
     mse = None
     column = dataset[:,cols]
@@ -167,45 +102,21 @@ def compute_betas(dataset, cols):
     mse = regression(dataset, cols, betas)
     return (mse, *betas)
 
-
+""" Using the closed-form solution betas, return the predicted body fat percentage of the give features."""
 def predict(dataset, cols, features):
-    """
-    TODO: implement this function.
-
-    INPUT: 
-        dataset - the body fat n by m+1 array
-        cols    - a list of feature indices to learn.
-                  For example, [1,8] refers to density and abdomen.
-        features- a list of observed values
-
-    RETURNS:
-        The predicted body fat percentage value
-    """
     result = None
     
     bet = compute_betas(dataset,cols)
     bet = np.asarray(bet)
     bet = np.delete(bet, 0)
     features = np.append([1], features)
- #   print(features)
     result = np.dot(features, bet)
     
     return result
 
 
+"""generates two synthetic datasets, one using a linear model and the other using a quadratic model."""
 def synthetic_datasets(betas, alphas, X, sigma):
-    """
-    TODO: implement this function.
-
-    Input:
-        betas  - parameters of the linear model
-        alphas - parameters of the quadratic model
-        X      - the input array (shape is guaranteed to be (n,1))
-        sigma  - standard deviation of noise
-
-    RETURNS:
-        Two datasets of shape (n,2) - linear one first, followed by quadratic.
-    """
     n = len(X)
 
 
@@ -226,7 +137,7 @@ def synthetic_datasets(betas, alphas, X, sigma):
     
     return linears, quads
 
-
+"""fits the synthetic datasets, and plots a figure depicting the MSEs under different situations."""
 def plot_mse():
     from sys import argv
     if len(argv) == 2 and argv[1] == 'csl':
@@ -262,9 +173,6 @@ def plot_mse():
         plt.xscale("log")
 
         plt.savefig('mse.pdf')
-
-
-    # TODO: Generate datasets and plot an MSE-sigma graph
 
 
 if __name__ == '__main__':
